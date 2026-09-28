@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tomris</title>
+<style>
+:root{--bg:#000;--fg:#fff;--mut:#A1A1AA;--ac:#00F2FE;--glass:rgba(20,20,24,.62);--line:rgba(255,255,255,.09);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-mode="private"]{--ac:#FF2E93}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#000;color:var(--fg);font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column;position:relative}
+header{display:flex;align-items:center;gap:14px;padding:14px 18px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.menu{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+.menu span,.menu span:before,.menu span:after{display:block;width:16px;height:1.5px;background:#fff;content:"";position:relative}
+.menu span:before{top:-5px;position:absolute}.menu span:after{top:5px;position:absolute}
+.logo{font-family:"Snell Roundhand","Brush Script MT","Segoe Script",cursive;font-size:34px;letter-spacing:.5px;line-height:1}
+.logo i{font-style:normal;color:var(--ac);text-shadow:0 0 10px var(--ac),0 0 26px var(--ac);transition:color .5s,text-shadow .5s}
+main{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+#wave{width:min(78vw,420px);aspect-ratio:1;max-height:48vh}
+#chat{width:min(100%,720px);padding:0 18px;overflow:auto;max-height:34vh;display:flex;flex-direction:column;gap:10px}
+.m{padding:10px 14px;border-radius:16px;max-width:88%;font-size:15px;line-height:1.45}
+.u{align-self:flex-end;background:#15151a;color:#fff}
+.t{align-self:flex-start;color:#e8e8ea;border-left:2px solid var(--ac)}
+#hint{color:var(--mut);font-size:13px;height:20px;margin-top:6px}
+.bar{padding:10px 16px 16px;display:flex;justify-content:center}
+.pill{width:min(100%,720px);display:flex;align-items:center;gap:8px;background:#0c0c10;border:1px solid var(--line);border-radius:30px;padding:6px 6px 6px 18px}
+.pill:focus-within{border-color:var(--ac)}
+.pill input{flex:1;background:none;border:0;outline:0;color:#fff;font:inherit;font-size:16px;min-width:0}
+.ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none}
+.ic svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
+#mic.on{background:var(--ac)}#mic.on svg{stroke:#000}
+#send{background:var(--ac)}#send svg{stroke:#000}
+#scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:.3s;z-index:5}
+#drawer{position:absolute;top:0;bottom:0;left:0;width:min(84vw,320px);z-index:6;background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .35s cubic-bezier(.2,.8,.2,1);padding:calc(18px + env(safe-area-inset-top,0px)) 16px 16px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.open #drawer{transform:none}.open #scrim{opacity:1;pointer-events:auto}
+.new{border:1px solid var(--ac);color:var(--ac);border-radius:22px;padding:10px 14px;margin-bottom:8px}
+h4{margin:14px 6px 4px;font-size:11px;letter-spacing:.14em;color:var(--mut);font-weight:600;text-transform:uppercase}
+.it{text-align:left;padding:11px 12px;border-radius:12px;font-size:15px;display:flex;align-items:center;gap:10px;width:100%}
+.it:hover,.it.act{background:rgba(255,255,255,.07)}
+.it .d{width:8px;height:8px;border-radius:50%;background:#00F2FE}
+.it.pk .d{background:#FF2E93}
+.hist{color:var(--mut);font-size:14px;padding:7px 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pool{font-size:13px;color:var(--mut);padding:4px 12px;line-height:1.5}
+#agenda{display:none;position:absolute;inset:0;overflow:auto;padding:0 16px 24px;background:#000}
+.ag #agenda{display:block}.ag #wave,.ag #chat,.ag #hint{display:none}
+.ag ~ .bar{display:none}
+.wk{display:grid;grid-template-columns:44px repeat(7,minmax(70px,1fr));min-width:600px;border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:12px}
+.wk div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:38px;padding:3px 4px;color:var(--mut)}
+.wk .h{color:#fff;text-align:center;min-height:auto;padding:8px 2px}
+.wk .h.today{color:var(--ac)}
+.ev{background:color-mix(in srgb,var(--ac) 18%,#000);border-left:2px solid var(--ac);color:#fff!important;border-radius:6px;font-size:11px}
+.sc{overflow-x:auto}
+h3{margin:22px 2px 10px;font-size:15px;font-weight:600}
+.plan{display:grid;gap:8px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#0c0c10;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px}
+.row small{color:var(--mut)}
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.g{background:#0c0c10;border:1px solid var(--line);border-radius:16px;padding:14px;font-size:14px}
+.pb{height:4px;border-radius:2px;background:#222;margin:10px 0 6px;overflow:hidden}.pb b{display:block;height:100%;background:var(--ac)}
+.al{font-size:12px;color:var(--ac);cursor:pointer}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <button class="menu" id="mb" aria-label="Menü"><span></span></button>
+    <div class="logo">T<i>o</i>mris</div>
+  </header>
+  <main>
+    <canvas id="wave"></canvas>
+    <div id="hint"></div>
+    <div id="chat"></div>
+    <section id="agenda"></section>
+  </main>
+  <div class="bar">
+    <div class="pill">
+      <input id="in" placeholder="Tomris'e yaz…" autocomplete="off">
+      <button class="ic" id="mic" aria-label="Mikrofon"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <button class="ic" id="send" aria-label="Gönder"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+  <div id="scrim"></div>
+  <nav id="drawer">
+    <button class="new" id="nc">+ Yeni Sohbet</button>
+    <h4>Geçmiş</h4>
+    <div class="hist">Monolog: Kayıp Ses</div>
+    <div class="hist">Festival başvuru planı</div>
+    <div class="hist">Haftalık odak kararı</div>
+    <h4>Çalışma Alanları</h4>
+    <button class="it act" data-m="art"><span class="d"></span>Sanat</button>
+    <button class="it" data-m="life"><span class="d"></span>Yaşam</button>
+    <button class="it" data-m="manager"><span class="d"></span>Menajer</button>
+    <button class="it" data-m="agenda"><span class="d"></span>Ajanda &amp; Takvim</button>
+    <button class="it pk" data-m="private"><span class="d"></span>Private Assistant</button>
+    <h4>Ayarlar &amp; Entegrasyonlar</h4>
+    <button class="it" id="gl">Google ile giriş yap</button>
+    <div class="pool" id="pool">Hesap havuzu: 0 anahtar · otomatik yedekleme hazır</div>
+    <button class="it" id="ak">+ Hesap / anahtar ekle</button>
+  </nav>
+</div>
+<script>
+const $=s=>document.querySelector(s),root=document.documentElement,app=$('#app');
+let mode='art',state='idle',keys=0,amp=0,t0=0;
+const replies={
+ art:["Sahneyi ilk cümleden ayır: karakter bu monologda ne istiyor, kimden, neden şimdi? Cevabın 'hissediyorum' ise dur; eylem fiiliyle yeniden yaz.","Alt metni bul. Söylediği ile kastettiği arasındaki boşluk, sahnenin kendisidir."],
+ life:["Gürültüyü ayıklayalım: bu kararın tek gerçek sorusu ne? Onu bir cümleyle yaz, gerisi süs.","Kontrol edebildiğin tek şey bugünkü hamlen. Şimdi hangisi?"],
+ manager:["Önce marka cümlen: seni bir cümlede tanımlayan iş nedir? İçerik takvimini ona göre kurarız, festival başvurularını tarihe bağlarız.","Vitrin ucuzlamadan görünür olmalı. Bu hafta tek bir güçlü paylaşım, üç zayıf değil."],
+ private:["Buradayım. Açık konuşalım; neyi konuşmak istiyorsun?"],
+ agenda:[""]
+};
+const fin=/(banka|kredi kart|havale|\beft\b|hisse|borsa|kripto|cüzdan|iban|bitcoin)/i;
+function add(c,t){const d=document.createElement('div');d.className='m '+c;d.textContent=t;$('#chat').append(d);d.scrollIntoView({block:'end'})}
+function send(){const v=$('#in').value.trim();if(!v)return;$('#in').value='';add('u',v);state='speaking';$('#hint').textContent='Tomris yanıtlıyor…';
+ const r=fin.test(v)?"Bu alan tamamen kapsamımın dışında.":replies[mode][Math.floor(Math.random()*replies[mode].length)];
+ setTimeout(()=>{add('t',r);setTimeout(()=>{state='idle';$('#hint').textContent=''},1400)},700)}
+$('#send').onclick=send;$('#in').onkeydown=e=>{if(e.key==='Enter')send()};
+$('#mic').onclick=()=>{const on=state!=='listening';state=on?'listening':'idle';$('#mic').classList.toggle('on',on);$('#hint').textContent=on?'Dinliyorum…':''};
+const dr=o=>app.classList.toggle('open',o);
+$('#mb').onclick=()=>dr(true);$('#scrim').onclick=()=>dr(false);
+$('#nc').onclick=()=>{$('#chat').innerHTML='';dr(false)};
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
+ mode=b.dataset.m;document.querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('act',x===b));
+ root.dataset.mode=mode==='private'?'private':'';app.classList.toggle('ag',mode==='agenda');
+ if(mode==='agenda')buildAgenda();$('#chat').innerHTML='';dr(false)});
+$('#gl').onclick=()=>{$('#gl').textContent='Google hesabı bağlandı (demo)'};
+$('#ak').onclick=()=>{keys++;$('#pool').textContent='Hesap havuzu: '+keys+' anahtar · limitte otomatik geçiş'};
+function buildAgenda(){
+ const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'],hrs=['09','11','13','15','17','19'];
+ const ev={'1-2':'Prova','3-4':'Çekim','4-0':'Metin okuma','5-5':'Gösteri'};
+ const td=(new Date().getDay()+6)%7;
+ let g='<div class="wk"><div class="h"></div>'+days.map((d,i)=>`<div class="h ${i==td?'today':''}">${d}</div>`).join('');
+ hrs.forEach((h,r)=>{g+=`<div>${h}:00</div>`;days.forEach((_,c)=>{const e=ev[c+'-'+r];g+=`<div class="${e?'ev':''}">${e||''}</div>`})});
+ g+='</div>';
+ $('#agenda').innerHTML=`<h3>Haftalık Program</h3><div class="sc">${g}</div>
+ <h3>Aylık Plan</h3><div class="plan">
+ <div class="row"><span>Monolog provaları tamamla<br><small>Ayın 2. haftası</small></span><span class="al">⏰ Alarm</span></div>
+ <div class="row"><span>Festival başvuru dosyası<br><small>Ayın son haftası</small></span><span class="al">⏰ Alarm</span></div></div>
+ <h3>Hedefler</h3><div class="goals">
+ <div class="g">Yeni tek kişilik oyun<div class="pb"><b style="width:40%"></b></div><small>%40</small> <span class="al">⏰</span></div>
+ <div class="g">Showreel yenileme<div class="pb"><b style="width:70%"></b></div><small>%70</small> <span class="al">⏰</span></div>
+ <div class="g">Sosyal medya düzeni<div class="pb"><b style="width:25%"></b></div><small>%25</small> <span class="al">⏰</span></div></div>
+ <h3>Senkronizasyon</h3><div class="row"><span>Takvim ve akıllı cihazlar</span><span class="al" id="sy">Tek dokunuşla eşitle</span></div>`;
+ $('#sy').onclick=e=>e.target.textContent='Eşitlendi ✓'}
+// waveform
+const cv=$('#wave'),cx=cv.getContext('2d');
+function fit(){const r=cv.getBoundingClientRect(),d=devicePixelRatio||1;cv.width=r.width*d;cv.height=r.height*d}
+addEventListener('resize',fit);fit();
+function frame(t){
+ const w=cv.width,h=cv.height,R=Math.min(w,h)/2,c=getComputedStyle(root).getPropertyValue('--ac').trim();
+ const target=state==='listening'?.55+.4*Math.abs(Math.sin(t/130)*Math.sin(t/57)):state==='speaking'?.45+.35*Math.abs(Math.sin(t/110)+Math.sin(t/73))/2:.12+.05*Math.sin(t/900);
+ amp+=(target-amp)*.12;
+ cx.clearRect(0,0,w,h);cx.globalCompositeOperation='lighter';
+ for(let L=0;L<3;L++){
+  cx.beginPath();const base=R*(.42+L*.09),n=120;
+  for(let i=0;i<=n;i++){const a=i/n*Math.PI*2,k=Math.sin(a*(3+L*2)+t/(500-L*110))*amp*R*.16+Math.sin(a*5-t/380)*amp*R*.06;
+   const rr=base+k,x=w/2+Math.cos(a)*rr,y=h/2+Math.sin(a)*rr;i?cx.lineTo(x,y):cx.moveTo(x,y)}
+  cx.closePath();cx.strokeStyle=c;cx.globalAlpha=1-L*.28;cx.lineWidth=(2.4-L*.5)*(devicePixelRatio||1);
+  cx.shadowColor=c;cx.shadowBlur=22;cx.stroke();
+  if(L==0){cx.globalAlpha=.07;cx.fillStyle=c;cx.fill()}}
+ cx.globalAlpha=1;cx.shadowBlur=0;requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+</script>
+<script src="alarms.js"></script>
+</body>
+</html>
