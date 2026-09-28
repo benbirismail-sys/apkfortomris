@@ -1,4 +1,4 @@
-name: Build Tomris APK
+.github/workflows/name: Build Tomris APK
 on: [push, workflow_dispatch]
 jobs:
   apk:
